@@ -10,6 +10,7 @@ import SwiftUI
 struct ChatListView: View {
     
     @StateObject var viewModel : ChatListViewModel = ChatListViewModel()
+    @EnvironmentObject var appState : AppState
     
     var body: some View {
         
@@ -71,7 +72,17 @@ struct ChatListView: View {
 
             ToolbarItem(placement : .navigationBarTrailing) {
                 Button {
-                    viewModel.createChat()
+                    Task{
+                        
+                        do{
+                            let chatId = try await viewModel.createChat(user: appState.currentUser?.uid)
+                            appState.navigationPath.append(chatId)
+                        }
+                        catch let error{
+                            print(error)
+                        }
+                        
+                    }
                 } label: {
                     Image(systemName: "square.and.pencil")
                 }
@@ -85,7 +96,7 @@ struct ChatListView: View {
         })
         .onAppear{
             if viewModel.loadingState == .none {
-                viewModel.fetchData()
+                viewModel.fetchData(user:  appState.currentUser?.uid ?? "")
             }
         }
     }

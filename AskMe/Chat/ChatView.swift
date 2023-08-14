@@ -29,6 +29,8 @@ struct ChatView: View {
             }
             messageInputView
         }
+        .navigationTitle(viewModel.chat?.topic ?? "New Chat")
+        .navigationBarTitleDisplayMode(.inline)
         .onAppear{
             viewModel.fetchDate()
         }
@@ -92,10 +94,10 @@ struct ChatView: View {
                 .background(.gray.opacity(0.1))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .onSubmit {
-                    viewModel.sendMessage()
+                    sendMessage()
                 }
             Button {
-                viewModel.sendMessage()
+                sendMessage()
             } label: {
                 Text("Send")
                     .padding()
@@ -107,6 +109,17 @@ struct ChatView: View {
 
         }
         .padding()
+    }
+    
+    func sendMessage(){
+        task {
+            do{
+                try await viewModel.sendMessage()
+            }
+            catch let error {
+                print(error)
+            }
+        }
     }
 }
 
